@@ -9,5 +9,11 @@ class Constants:
         PADDING_SAME = 'same'
         STRIDES = 2
 
+    class Fusion:
+        ACTIVATION_RELU = 'relu'
+        PADDING_SAME = 'same'
+
     class Decoder:
+        ACTIVATION_RELU = 'relu'
         ACTIVATION_TANH = 'tanh'
+        PADDING_SAME = 'same'
