@@ -2,6 +2,7 @@ import os
 
 import numpy as np
 from keras import Model
+from keras.engine.topology import Input
 from keras.preprocessing.image import img_to_array, load_img
 
 from decoder import init_decoder
@@ -35,11 +36,12 @@ def load_image_data(folder_path, normalize=True):
 
 
 def init_model():
+    input = Input(shape=(1000,))
     encoder = init_encoder()
-    fusion, embed = init_fusion(encoder=encoder)
+    fusion = init_fusion(input=input, encoder=encoder)
     decoder = init_decoder(fusion=fusion)
 
-    return Model(inputs=[encoder, embed], outputs=decoder)
+    return Model(inputs=[encoder, input], outputs=decoder)
 
 
 if __name__ == '__main__':
