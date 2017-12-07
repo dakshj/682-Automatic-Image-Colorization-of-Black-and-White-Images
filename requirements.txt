@@ -1,3 +1,4 @@
+h5py
 scikit-image
 Pillow
 tensorflow

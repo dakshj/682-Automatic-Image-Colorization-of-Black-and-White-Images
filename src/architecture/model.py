@@ -5,7 +5,8 @@ from architecture.cnn_layers.decoder import init_decoder
 from architecture.cnn_layers.encoder import init_encoder
 from architecture.cnn_layers.fusion import init_fusion
 from data.image_data import generate_image_data_for_inception, load_raw_image_data, \
-    get_channel_data_from_raw_image_data, reconstruct_image_data_from_channels
+    get_channel_data_from_raw_image_data, reconstruct_image_data_from_channels, \
+    save_image_data_as_images
 from data.logging import init_tensorboard_for_logging
 from data.model_io import save_model_to_disk
 
@@ -44,10 +45,13 @@ def test(model, test_data_dir):
 
     l_channel_data, _ = gray_data
 
-    reconstruct_image_data_from_channels(
+    final_images = reconstruct_image_data_from_channels(
         l_channel_data=l_channel_data,
         a_b_channels_data=predicted_a_b_channels_data
     )
+
+    save_image_data_as_images(image_data=final_images,
+                              colorized_folder_path='../../../dataset/test/colorized')
 
 
 if __name__ == '__main__':

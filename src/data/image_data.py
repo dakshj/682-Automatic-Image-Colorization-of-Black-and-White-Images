@@ -90,8 +90,8 @@ def reconstruct_image_data_from_channels(l_channel_data, a_b_channels_data):
     return images
 
 
-def save_image_data_as_images(image_data, folder_path):
+def save_image_data_as_images(image_data, colorized_folder_path):
     for i, image_array in enumerate(image_data):
         Image.fromarray(image_array).save(
-            os.path.join(folder_path, '%s.jpg' % i)
+            os.path.join(colorized_folder_path, '%s.jpg' % i)
         )
