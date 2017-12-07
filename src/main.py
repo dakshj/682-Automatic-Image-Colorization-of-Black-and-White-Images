@@ -3,6 +3,8 @@ import os
 import numpy as np
 from keras.preprocessing.image import img_to_array, load_img
 
+from encoder import init_encoder
+
 
 def train():
     X_train = load_image_data('../dataset/train', normalize=True)
@@ -31,3 +33,5 @@ def load_image_data(folder_path, normalize=True):
 
 if __name__ == '__main__':
     train()
+
+    init_encoder()
