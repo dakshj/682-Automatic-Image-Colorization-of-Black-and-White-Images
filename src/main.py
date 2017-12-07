@@ -1,8 +1,10 @@
 import os
 
 import numpy as np
+from keras import Model
 from keras.preprocessing.image import img_to_array, load_img
 
+from decoder import init_decoder
 from encoder import init_encoder
 from fusion import init_fusion
 
@@ -32,9 +34,15 @@ def load_image_data(folder_path, normalize=True):
     return array
 
 
+def init_model():
+    encoder = init_encoder()
+    fusion, embed = init_fusion(encoder=encoder)
+    decoder = init_decoder(fusion=fusion)
+
+    return Model(inputs=[encoder, embed], outputs=decoder)
+
+
 if __name__ == '__main__':
     train()
 
-    encoder = init_encoder()
-
-    fusion = init_fusion(encoder=encoder)
+    model = init_model()
