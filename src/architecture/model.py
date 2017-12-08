@@ -23,7 +23,7 @@ def init_model():
     return Model(inputs=[encoder_input, fusion_input], outputs=decoder)
 
 
-def train(train_dir, log_dir, batch_size=32):
+def train(train_dir, log_dir, epochs, batch_size=32):
     X_train = load_raw_image_data(train_dir)
     model = init_model()
     model.compile(optimizer='adam', loss='mse')
@@ -34,7 +34,7 @@ def train(train_dir, log_dir, batch_size=32):
     model.fit_generator(
         generator=generate_image_data_for_inception(X_train=X_train, batch_size=batch_size),
         callbacks=[init_tensorboard_for_logging(log_dir)],
-        epochs=100,
+        epochs=epochs,
         steps_per_epoch=steps_per_epoch
     )
 
@@ -67,7 +67,7 @@ if __name__ == '__main__':
     train_dir, log_dir, model_dir, test_dir, colorized_dir = \
         get_project_dirs(project_root_dir=os.getcwd())
 
-    model = train(train_dir=train_dir, log_dir=log_dir)
+    model = train(train_dir=train_dir, log_dir=log_dir, epochs=1)
 
     save_model_to_disk(model=model, model_dir=model_dir)
 
