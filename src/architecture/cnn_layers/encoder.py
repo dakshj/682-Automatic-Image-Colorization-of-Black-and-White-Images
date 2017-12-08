@@ -6,8 +6,7 @@ IMAGE_WIDTH = 256
 
 
 def init_encoder():
-    # TODO maybe should be (H, W, 1,)
-    input = Input(shape=(IMAGE_HEIGHT, IMAGE_WIDTH,))
+    input = Input(shape=(IMAGE_HEIGHT, IMAGE_WIDTH, 1,))
 
     encoder = add_conv_layer_with_strides(input=input, filters=64)
     encoder = add_conv_layer(input=encoder, filters=128)
@@ -18,7 +17,7 @@ def init_encoder():
     encoder = add_conv_layer(input=encoder, filters=512)
     encoder = add_conv_layer(input=encoder, filters=256)
 
-    return encoder
+    return input, encoder
 
 
 def add_conv_layer_with_strides(input, filters):

@@ -1,3 +1,4 @@
+import math
 import os
 
 from keras import Model
@@ -14,12 +15,12 @@ from data.logging import init_tensorboard_for_logging
 
 
 def init_model():
-    input = Input(shape=(1000,))
-    encoder = init_encoder()
-    fusion = init_fusion(input=input, encoder=encoder)
+    fusion_input = Input(shape=(1000,))
+    encoder_input, encoder = init_encoder()
+    fusion = init_fusion(input=fusion_input, encoder=encoder)
     decoder = init_decoder(fusion=fusion)
 
-    return Model(inputs=[encoder, input], outputs=decoder)
+    return Model(inputs=[encoder_input, fusion_input], outputs=decoder)
 
 
 def train(train_dir, log_dir, batch_size=32):
@@ -27,11 +28,14 @@ def train(train_dir, log_dir, batch_size=32):
     model = init_model()
     model.compile(optimizer='adam', loss='mse')
 
+    steps_per_epoch = math.ceil(len(X_train) / batch_size)
+
     # Fit data using the ImageDataGenerator
     model.fit_generator(
         generator=generate_image_data_for_inception(X_train=X_train, batch_size=batch_size),
         callbacks=[init_tensorboard_for_logging(log_dir)],
-        epochs=1000
+        epochs=100,
+        steps_per_epoch=steps_per_epoch
     )
 
     return model

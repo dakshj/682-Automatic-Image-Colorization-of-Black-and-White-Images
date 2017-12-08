@@ -58,7 +58,7 @@ def get_channel_data_from_raw_image_data(images, return_a_b_channels_data=True):
     # Training data is a combination of:
     # - The L channel
     # - An extraction of high-level feature embeddings from Inception ResNet v2
-    gray_data = l_channel_data, extract_inception_features(gray_images)
+    gray_data = [l_channel_data, extract_inception_features(gray_images)]
 
     if return_a_b_channels_data:
         # Pick the "A" and "B" channels from all images. This is gong to be our Ground Truth.
