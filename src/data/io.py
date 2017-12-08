@@ -12,7 +12,7 @@ def get_project_dirs(project_root_dir):
     log_dir = join(project_root_dir, 'logs')
     model_dir = join(project_root_dir, 'model')
     test_dir = join(dataset_dir, 'test')
-    colorized_dir = join(test_dir, 'colorized')
+    colorized_dir = join(dataset_dir, 'colorized')
 
     if not os.path.exists(model_dir):
         os.makedirs(model_dir)
