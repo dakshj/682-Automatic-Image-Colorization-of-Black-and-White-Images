@@ -9,15 +9,15 @@ from architecture.cnn_layers.encoder import IMAGE_HEIGHT, IMAGE_WIDTH
 from architecture.inception.inception import extract_inception_features
 
 
-def load_raw_image_data(folder_path, normalize=True):
+def load_raw_image_data(images_dir, normalize=True):
     array = np.array(  # Array of all images
         [np.array(
             Image.open(
                 # Get full path of image file
-                os.path.join(folder_path, file_name)))
+                os.path.join(images_dir, file_name)))
 
-            # Repeat this for all files in the folder
-            for file_name in os.listdir(folder_path)]
+            # Repeat this for all files in the directory
+            for file_name in os.listdir(images_dir)]
     )
 
     if normalize:
@@ -90,8 +90,8 @@ def reconstruct_image_data_from_channels(l_channel_data, a_b_channels_data):
     return images
 
 
-def save_image_data_as_images(image_data, colorized_folder_path):
+def save_image_data_as_images(image_data, colorized_dir):
     for i, image_array in enumerate(image_data):
         Image.fromarray(image_array).save(
-            os.path.join(colorized_folder_path, '%s.jpg' % i)
+            os.path.join(colorized_dir, '%s.jpg' % i)
         )

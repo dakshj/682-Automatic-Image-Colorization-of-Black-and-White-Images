@@ -1,3 +1,5 @@
+import os
+
 from keras import Model
 from keras.engine.topology import Input
 
@@ -7,8 +9,8 @@ from architecture.cnn_layers.fusion import init_fusion
 from data.image_data import generate_image_data_for_inception, load_raw_image_data, \
     get_channel_data_from_raw_image_data, reconstruct_image_data_from_channels, \
     save_image_data_as_images
+from data.io import save_model_to_disk, get_project_dirs
 from data.logging import init_tensorboard_for_logging
-from data.model_io import save_model_to_disk
 
 
 def init_model():
@@ -20,8 +22,8 @@ def init_model():
     return Model(inputs=[encoder, input], outputs=decoder)
 
 
-def train(training_data_dir, log_dir, batch_size=32):
-    X_train = load_raw_image_data(training_data_dir)
+def train(train_dir, log_dir, batch_size=32):
+    X_train = load_raw_image_data(train_dir)
     model = init_model()
     model.compile(optimizer='adam', loss='mse')
 
@@ -35,8 +37,8 @@ def train(training_data_dir, log_dir, batch_size=32):
     return model
 
 
-def test(model, test_data_dir):
-    gray_data = load_raw_image_data(test_data_dir)
+def test(model, test_dir, colorized_dir):
+    gray_data = load_raw_image_data(test_dir)
     gray_data = get_channel_data_from_raw_image_data(gray_data, return_a_b_channels_data=False)
 
     # Multiply the predicted values by 128 to convert them to the 0-255 space
@@ -50,13 +52,19 @@ def test(model, test_data_dir):
         a_b_channels_data=predicted_a_b_channels_data
     )
 
-    save_image_data_as_images(image_data=final_images,
-                              colorized_folder_path='../../../dataset/test/colorized')
+    save_image_data_as_images(image_data=final_images, colorized_dir=colorized_dir)
 
 
 if __name__ == '__main__':
-    model = train(training_data_dir='../../../dataset/train', log_dir='../../../logs')
+    # Go to project root directory
+    os.chdir('..')
+    os.chdir('..')
 
-    save_model_to_disk(model=model, folder_path='../../../model')
+    train_dir, log_dir, model_dir, test_dir, colorized_dir = \
+        get_project_dirs(project_root_dir=os.getcwd())
 
-    test(model, test_data_dir='../../../dataset/test')
+    model = train(train_dir=train_dir, log_dir=log_dir)
+
+    save_model_to_disk(model=model, model_dir=model_dir)
+
+    test(model, test_dir=test_dir, colorized_dir=colorized_dir)
