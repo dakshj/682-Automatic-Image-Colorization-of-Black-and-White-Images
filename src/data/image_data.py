@@ -16,8 +16,8 @@ def load_raw_image_data(images_dir, normalize=True):
                 # Get full path of image file
                 os.path.join(images_dir, file_name)))
 
-            # Repeat this for all files in the directory
-            for file_name in os.listdir(images_dir)]
+            # Repeat this for all JPEG files in the directory
+            for file_name in os.listdir(images_dir) if file_name.endswith('.jpg')]
     )
 
     if normalize:
@@ -92,6 +92,6 @@ def reconstruct_image_data_from_channels(l_channel_data, a_b_channels_data):
 
 def save_image_data_as_images(image_data, colorized_dir):
     for i, image_array in enumerate(image_data):
-        Image.fromarray(image_array).save(
+        Image.fromarray(image_array.astype('uint8'), 'RGB').save(
             os.path.join(colorized_dir, '%s.jpg' % i)
         )
