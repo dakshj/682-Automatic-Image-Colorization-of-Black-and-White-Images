@@ -2,8 +2,9 @@ import os
 import time
 from os.path import join
 
-FILE_MODEL_WEIGHTS = 'model_weights.h5'
-FILE_MODEL_JSON = 'model.json'
+from keras.models import load_model
+
+FILE_SAVED_MODEL = 'model.h5'
 
 
 def get_project_dirs(project_root_dir):
@@ -24,9 +25,8 @@ def get_project_dirs(project_root_dir):
 
 
 def save_model_to_disk(model, model_dir):
-    # Save Model Weights
-    model.save_weights(join(model_dir, FILE_MODEL_WEIGHTS))
+    model.save(filepath=join(model_dir, FILE_SAVED_MODEL))
 
-    # Save Model as Serialized JSON
-    with open(file=join(model_dir, FILE_MODEL_JSON), mode='w') as json:
-        json.write(model.to_json())
+
+def load_model_from_disk(model_dir):
+    return load_model(join(model_dir, FILE_SAVED_MODEL))

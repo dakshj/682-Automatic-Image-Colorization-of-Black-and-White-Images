@@ -3,3 +3,5 @@
 /dataset/colorized*/
 /logs/
 /model/
+__pycache__
+.py[cod]

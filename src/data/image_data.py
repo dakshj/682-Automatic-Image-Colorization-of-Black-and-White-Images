@@ -4,6 +4,7 @@ import numpy as np
 from PIL import Image
 from keras.preprocessing.image import ImageDataGenerator
 from skimage.color import rgb2gray, gray2rgb, rgb2lab
+from skimage.color.colorconv import lab2rgb
 
 from architecture.cnn_layers.encoder import IMAGE_HEIGHT, IMAGE_WIDTH
 from architecture.inception.inception import extract_inception_features
@@ -73,8 +74,11 @@ def get_channel_data_from_raw_image_data(images, return_a_b_channels_data=True):
     return gray_data
 
 
-def reconstruct_image_data_from_channels(l_channel_data, a_b_channels_data):
-    images = []
+def reconstruct_image_data_from_channels_and_save_images_to_disk(l_channel_data, a_b_channels_data,
+                                                                 colorized_dir):
+    if l_channel_data.shape[0] != a_b_channels_data.shape[0]:
+        raise ValueError('Differing lengths in "l_channel_data"=%s and "a_b_channels_data"=%s'
+                         % (l_channel_data.shape[0], a_b_channels_data.shape[0]))
 
     for i in range(len(l_channel_data)):
         image = np.zeros((IMAGE_HEIGHT, IMAGE_WIDTH, 3))
@@ -85,14 +89,10 @@ def reconstruct_image_data_from_channels(l_channel_data, a_b_channels_data):
         # Set A and B channels
         image[:, :, 1:] = a_b_channels_data[i]
 
-        # Save image
-        images.append(image)
+        # Convert from LAB color space to RGB color space
+        image = lab2rgb(lab=image)
 
-    return images
-
-
-def save_image_data_as_images(image_data, colorized_dir):
-    for i, image_array in enumerate(image_data):
-        Image.fromarray(image_array.astype('uint8'), 'RGB').save(
+        # Save RGB image to disk
+        Image.fromarray(image.astype('uint8'), 'RGB').save(
             os.path.join(colorized_dir, '%s.jpg' % i)
         )
