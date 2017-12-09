@@ -47,7 +47,11 @@ def get_channel_data_from_raw_image_data(images, return_a_b_channels_data=True):
     gray_images = gray2rgb(gray_images)
 
     # Convert to LAB space
-    lab_images = rgb2lab(images)
+    if return_a_b_channels_data:
+        lab_images = rgb2lab(images)
+    else:
+        # Use the grayed images for getting LAB data
+        lab_images = rgb2lab(gray_images)
 
     # Pick the "L" channel from all images.
     # This is going to be the second part of our Training Data.
