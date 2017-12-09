@@ -17,7 +17,8 @@ def load_raw_image_data(images_dir, normalize=True):
                 os.path.join(images_dir, file_name)))
 
             # Repeat this for all JPEG files in the directory
-            for file_name in os.listdir(images_dir) if file_name.endswith('.jpg')]
+            for file_name in os.listdir(images_dir)
+            if file_name.endswith('.jpg') or file_name.endswith('.jpeg')]
     )
 
     if normalize:
