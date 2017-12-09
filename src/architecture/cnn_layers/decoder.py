@@ -14,10 +14,9 @@ def init_decoder(fusion):
     return decoder
 
 
-def add_conv_layer(input, filters, kernel_size=(3, 3),
-                   activation='relu'):
+def add_conv_layer(input, filters, activation='relu'):
     return Conv2D(filters=filters,
-                  kernel_size=kernel_size,
+                  kernel_size=(3, 3),
                   activation=activation,
                   padding='same')(input)
 
