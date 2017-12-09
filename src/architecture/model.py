@@ -10,7 +10,7 @@ from architecture.cnn_layers.fusion import init_fusion
 from data.image_data import generate_image_data_for_inception, load_raw_image_data, \
     get_channel_data_from_raw_image_data, \
     reconstruct_image_data_from_channels_and_save_images_to_disk
-from data.io import get_project_dirs
+from data.io import get_project_dirs, save_model_to_disk
 from data.logging import init_tensorboard_for_logging
 
 
