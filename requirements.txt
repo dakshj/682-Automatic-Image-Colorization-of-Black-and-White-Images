@@ -1,6 +1,6 @@
 h5py
 scikit-image
 Pillow
-tensorflow
+tensorflow-gpu
 keras
 numpy
