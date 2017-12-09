@@ -1,10 +1,12 @@
 import os
+from os.path import join
 
 import numpy as np
 from PIL import Image
 from keras.preprocessing.image import ImageDataGenerator
 from skimage.color import rgb2gray, gray2rgb, rgb2lab
 from skimage.color.colorconv import lab2rgb
+from skimage.io import imsave
 
 from architecture.cnn_layers.encoder import IMAGE_HEIGHT, IMAGE_WIDTH
 from architecture.inception.inception import extract_inception_features
@@ -97,6 +99,4 @@ def reconstruct_image_data_from_channels_and_save_images_to_disk(l_channel_data,
         image = lab2rgb(lab=image)
 
         # Save RGB image to disk
-        Image.fromarray(image.astype('uint8'), 'RGB').save(
-            os.path.join(colorized_dir, '%s.jpg' % i)
-        )
+        imsave(fname=join(colorized_dir, '%s.jpg' % i), arr=image)
