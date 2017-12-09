@@ -1,5 +1,5 @@
 *.iml
 .idea
-/dataset/colorized/
+/dataset/colorized*/
 /logs/
 /model/
