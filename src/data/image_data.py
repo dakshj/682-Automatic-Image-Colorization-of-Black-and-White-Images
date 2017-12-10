@@ -86,15 +86,15 @@ def reconstruct_image_data_from_channels_and_save_images_to_disk(l_channel_data,
         raise ValueError('Differing lengths in "l_channel_data"=%s and "a_b_channels_data"=%s'
                          % (l_channel_data.shape[0], a_b_channels_data.shape[0]))
 
-    for i in range(len(l_channel_data)):
-        image = np.zeros((IMAGE_HEIGHT, IMAGE_WIDTH, 3))
+    images = np.zeros((len(l_channel_data), IMAGE_HEIGHT, IMAGE_WIDTH, 3))
 
-        # Set L channel
-        image[:, :, 0] = l_channel_data[i][:, :, 0]
+    # Set L channel
+    images[:, :, :, 0] = l_channel_data[:, :, :, 0]
 
-        # Set A and B channels
-        image[:, :, 1:] = a_b_channels_data[i]
+    # Set A and B channels
+    images[:, :, :, 1:] = a_b_channels_data
 
+    for i, image in enumerate(images):
         # Convert from LAB color space to RGB color space
         image = lab2rgb(lab=image)
 
