@@ -94,6 +94,9 @@ def reconstruct_image_data_from_channels_and_save_images_to_disk(l_channel_data,
     # Set A and B channels
     images[:, :, :, 1:] = a_b_channels_data
 
+    if not os.path.exists(colorized_dir):
+        os.makedirs(colorized_dir)
+
     for i, image in enumerate(images):
         # Convert from LAB color space to RGB color space
         image = lab2rgb(lab=image)
