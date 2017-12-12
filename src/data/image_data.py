@@ -15,20 +15,28 @@ from architecture.inception.inception import extract_inception_features
 def load_raw_image_data(images_dir, normalize=True):
     array = np.array(  # Array of all images
         [np.array(
-            Image.open(
+            load_and_close_image(
                 # Get full path of image file
                 os.path.join(images_dir, file_name)))
 
             # Repeat this for all JPEG files in the directory
             for file_name in os.listdir(images_dir)
-            if file_name.endswith('.jpg') or file_name.endswith('.jpeg')]
+            if file_name.endswith('.jpg') or file_name.endswith('.jpeg')],
+        dtype=float
     )
 
     if normalize:
         # Normalize all pixel values from 0-255 to 0-1.0
-        return 1.0 / 255 * array
+        array *= 1.0 / 255
 
     return array
+
+
+def load_and_close_image(file_path):
+    temp = Image.open(file_path)
+    image = temp.copy()
+    temp.close()
+    return image
 
 
 def generate_image_data_for_inception(X_train, batch_size=32):
