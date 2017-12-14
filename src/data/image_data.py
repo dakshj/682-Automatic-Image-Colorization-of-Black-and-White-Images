@@ -39,7 +39,7 @@ def load_and_close_image(file_path):
     return image
 
 
-def generate_image_data_for_inception(X_train, batch_size=32):
+def generate_augmented_image_data(X_train, batch_size=32):
     for images in ImageDataGenerator(
             rotation_range=20,
             shear_range=0.2,
