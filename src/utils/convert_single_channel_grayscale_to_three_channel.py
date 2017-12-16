@@ -4,6 +4,7 @@ import numpy as np
 from skimage.io._io import imread, imsave
 
 os.chdir('..')
+os.chdir('..')
 
 print(os.getcwd())
 
