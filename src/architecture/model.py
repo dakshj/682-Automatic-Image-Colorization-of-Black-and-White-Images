@@ -66,7 +66,7 @@ if __name__ == '__main__':
     train_dir, log_dir, model_dir, test_dir, colorized_dir = \
         get_project_dirs(project_root_dir=os.getcwd())
 
-    model = train(train_dir=train_dir, log_dir=log_dir, epochs=50, batch_size=100)
+    model = train(train_dir=train_dir, log_dir=log_dir, epochs=500, batch_size=100)
 
     save_model_to_disk(model=model, model_dir=model_dir)
 

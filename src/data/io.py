@@ -10,7 +10,7 @@ FILE_SAVED_MODEL = 'model.h5'
 def get_project_dirs(project_root_dir):
     dataset_dir = join(project_root_dir, 'dataset')
 
-    train_dir = join(dataset_dir, 'train')
+    train_dir = join(dataset_dir, 'train2')
     log_dir = join(project_root_dir, 'logs')
     model_dir = join(project_root_dir, 'model')
     test_dir = join(dataset_dir, 'test')
