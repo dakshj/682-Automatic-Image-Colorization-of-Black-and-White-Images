@@ -42,7 +42,7 @@ def train(train_dir, log_dir, epochs, batch_size=32):
 
 
 def test(model, test_dir, colorized_dir):
-    gray_data = load_raw_image_data(test_dir)
+    gray_data, test_file_names = load_raw_image_data(test_dir, get_file_names=True)
     gray_data = get_channel_data_from_raw_image_data(gray_data, return_a_b_channels_data=False)
 
     # Multiply the predicted values by 128 to convert them to the 0-255 space
@@ -54,7 +54,8 @@ def test(model, test_dir, colorized_dir):
     reconstruct_image_data_from_channels_and_save_images_to_disk(
         l_channel_data=l_channel_data,
         a_b_channels_data=predicted_a_b_channels_data,
-        colorized_dir=colorized_dir
+        colorized_dir=colorized_dir,
+        test_file_names=test_file_names
     )
 
 
