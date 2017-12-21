@@ -42,7 +42,7 @@
 	\section{Related Work}
 	In 2016, Zhang et. al. \cite{Zhang1} proposed using a deep neural network to train it using the L-channel of the LAB color space \cite{LabColorSpace} of an image as input, and the A-B channels as the output. They used L2 loss as their objective function. However, since they found the problem of colorization to be multimodal in nature, they treated it as a multinomial classification. Thus, they incorporated class rebalancing, which helped with imbalanced and desaturated pixels when the occurrence of some pixel values is rarer than others.
 
-	Also in 2016, Iizuka, Simo-serra, et. al. \cite{Iizuka} proposed a similar method, of using a deep convolutional neural network. However, their network architecture also included usage of global-level along with the CNN's mid-level features to encode images for colorization. They logically split their network into encoding, fusion, and decoding layers, along with a pre-trained external model's inputs being concatenated in the fusion layer. Their research shows clearly how the usage of global features improves lower contrast parts of an image to also be colorized to similar to ground truth. They used the MIT Places Scene dataset containing 2.3 million images divided into 205 categories. The network architecture used in my paper is inspired from from this reference. However, a point to note is that though these researchers used a self-trained model for extraction of global features, this project uses Google's Inception ResNet v2 \cite{Inception}.
+	Also in 2016, Iizuka, Simo-serra, et. al. \cite{Iizuka} proposed a similar method, of using a deep convolutional neural network. However, their network architecture also included usage of global-level along with the CNN's mid-level features to encode images for colorization. They logically split their network into encoding, fusion, and decoding layers, along with a pre-trained external model's inputs being concatenated in the fusion layer. Their research shows clearly how the usage of global features improves lower contrast parts of an image to also be colorized to similar to ground truth. They used the MIT Places Scene dataset containing 2.3 million images divided into 205 categories. The network architecture used in my paper is inspired from from this reference. However, a point to note is that though these researchers used a self-trained model for extraction of global features, this project uses Google's Inception ResNet v2 \cite{Inception}. This approach of using the pre-trained Inception model is similar to \cite{Koalarization}.
 
 	Another paper reviewed was a follow-up research by Zhang et. al. \cite{Zhang2} released in 2017. This paper built upon their previous research, by allowing user hints to help guide the network to output more relevant color predictions, which could be updated in real-time. They have also released an interactive tool which accepts user inputs, and even makes color suggestions to users once a pixel on an image has been selected. This enables the user to customize image colors vastly and even deviate from network predictions. For example: blue elephants and green human skin tones!
 
@@ -55,6 +55,11 @@
 	After images have been converted to the Lab color space, the L-channels and AB-channels are separated. The L-channels are the input data to the model, and the AB-channels are what the model will need to predict. Thus, our objective function becomes a prediction of an AB-channel given an L-channel.
 
 	subsequently, the image is passed to both parts of the network, namely the Deep CNN and Inception ResNet v2 \cite{Inception}. For Inception, all training images are resized to\\(299 x 299 x 3), which is the required input dimension for that model. The outputs of a part of the CNN are concatenated with the feature extractions of Inception. Then, the image arrays are passed through a series of convolutional and upsampling layers, to finally output images of the original H and W dimensions, but with only two channels. These two output channels are the a and b channels. The final output image is reconstructed by merging the input L channel data with these two predicted channels.
+
+	\begin{figure*}
+		\includegraphics[width=\textwidth]{Architecture}
+		\caption{Network Architecture comprising of a Deep CNN and an Inception ResNet v2 model}
+	\end{figure*}
 
 	\section{Network Architecture}
 	The overall network is composed of a Deep Convolutional Neural Network which will be trained from scratch, and a pre-trained Inception ResNet v2. The overall network is logically partitioned into the Encoding, Fusion, and Decoding layers.
@@ -103,33 +108,7 @@
 
 	About 20 test results from the final training experiment were cherry-picked from the total test set of 1000 images, and a small user study was conducted with 14 individuals. In a total count of 20 colorized and 20 originally colored images, 100\% of the 14 individuals misclassified at least 4 of the 20 colorized images to be originally colored ones. Average acceptance of the model's colorized images as originally colored images was 31.4\%, which is an average of 6.28 images per person. These acceptance numbers could be possibly improved with more network training on higher computational capabilities.
 
-	\section{Conclusions}
-	This project was immensely informative to a good extent of the workings of Convolutional Neural Networks, and how the results of a network trained from scratch can be improved by using features of a pre-trained network which has been trained for a totally different purpose.
-
-	With regards to the task of image colorization specifically, the conclusions from this project are:
-	\begin{itemize}
-		\item Vastly varying images trained for a handful of images will result in simply sepia-toned images, with no real coloring.
-		\item Increasing the batch size has a direct positive impact on the colorization output.
-		\item Having similar images for colorization yields significantly better results.
-		\item Training the network for a high number of epochs is effective, if employed with data augmentation so as to avoid overfitting by repeatedly using the exactly same images.
-	\end{itemize}
-
-	Extensions to this project that can be implemented in the future:
-	\begin{itemize}
-		\item Validate the results with a larger user study, after training the network on systems of higher computational capacity by using a larger dataset trained for a high number of epochs
-		\item Trying out the model with different pre-trained models such as VGG-16
-		\item Video Colorization: Use this trained model to colorize the frames of a video, and apply additional color consistency checks for smooth transitions between frames
-		\item Train the network to directly predict RGB values from grayscale values; i.e., a different approach as compared to prediction of AB-channels given L-channel data
-		\item Leverage another neural network to be used as a loss function, which will classify colorized images as original or fake
-	\end{itemize}
-
-	\begin{figure*}
-		\includegraphics[width=\textwidth]{Architecture}
-		\caption{Network Architecture comprising of a Deep CNN and an Inception ResNet v2 model}
-	\end{figure*}
-
 	\begin{figure}
-		\centering
 		\hrule
 		\begin{tabular}{|c|c|c|}
 			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_1_All_Brown/original/59zhma}} &
@@ -155,7 +134,6 @@
 	\end{figure}
 
 	\begin{figure}
-		\centering
 		\hrule
 		\begin{tabular}{|c|c|c|}
 			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_2_Bluish_Hues/original/60bCve}} &
@@ -205,8 +183,8 @@
 		\label{exp_3}
 	\end{figure}
 
+
 	\begin{figure}
-		\centering
 		\hrule
 		\begin{tabular}{|c|c|c|}
 			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/original/AsarQv}} &
@@ -249,7 +227,28 @@
 		\label{loss}
 	\end{figure*}
 
-	\newpage
+	\clearpage
+
+	\section{Conclusions}
+	This project was immensely informative to a good extent of the workings of Convolutional Neural Networks, and how the results of a network trained from scratch can be improved by using features of a pre-trained network which has been trained for a totally different purpose.
+
+	With regards to the task of image colorization specifically, the conclusions from this project are:
+	\begin{itemize}
+		\item Vastly varying images trained for a handful of images will result in simply sepia-toned images, with no real coloring.
+		\item Increasing the batch size has a direct positive impact on the colorization output.
+		\item Having similar images for colorization yields significantly better results.
+		\item Training the network for a high number of epochs is effective, if employed with data augmentation so as to avoid overfitting by repeatedly using the exactly same images.
+	\end{itemize}
+
+	Extensions to this project that can be implemented in the future:
+	\begin{itemize}
+		\item Validate the results with a larger user study, after training the network on systems of higher computational capacity by using a larger dataset trained for a high number of epochs
+		\item Trying out the model with different pre-trained models such as VGG-16
+		\item Video Colorization: Use this trained model to colorize the frames of a video, and apply additional color consistency checks for smooth transitions between frames
+		\item Train the network to directly predict RGB values from grayscale values; i.e., a different approach as compared to prediction of AB-channels given L-channel data
+		\item Leverage another neural network to be used as a loss function, which will classify colorized images as original or fake
+	\end{itemize}
+
 	\newpage
 
 	\begin{thebibliography}{1}
