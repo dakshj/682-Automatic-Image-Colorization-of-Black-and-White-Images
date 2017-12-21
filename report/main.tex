@@ -17,251 +17,251 @@
 
 \begin{document}
 
-\title{Automatic Image Colorization using a Combination of\\
-a Deep CNN and Feature Extraction from Inception ResNet v2}
+	\title{Automatic Image Colorization using a Combination of\\
+	a Deep CNN and Feature Extraction from Inception ResNet v2}
 
-\author{Daksh Jotwani\\
-UMass Amherst\\
-{\tt\small djotwani@cs.umass.edu}
-}
+	\author{Daksh Jotwani\\
+	UMass Amherst\\
+	{\tt\small djotwani@cs.umass.edu}
+	}
 
-\maketitle
+	\maketitle
 
-TODO Add references everywhere\\
-TODO Mention MSE loss while showing loss graph
+	TODO Add references everywhere\\
+	TODO Mention MSE loss while showing loss graph
 
-\section{Abstract}
-This paper is aimed at building a network to aid the process of automatically colorizing black-and-white images. After analyzing the current research in the field of image colorization, I select the network architecture of one of the reviewed literature, and re-implement it using the provided network description in Keras, using TensorFlow as the backend. This architecture is composed of a Deep Convolutional Neural Network partitioned into Encoding, Fusion, and Decoding layers, along with high-level feature extraction from Inception ResNet v2. The method selected for validating this project is to present images colorized using the above model in a user study.
+	\section{Abstract}
+	This paper is aimed at building a network to aid the process of automatically colorizing black-and-white images. After analyzing the current research in the field of image colorization, I select the network architecture of one of the reviewed literature, and re-implement it using the provided network description in Keras, using TensorFlow as the backend. This architecture is composed of a Deep Convolutional Neural Network partitioned into Encoding, Fusion, and Decoding layers, along with high-level feature extraction from Inception ResNet v2. The method selected for validating this project is to present images colorized using the above model in a user study.
 
-\section{Introduction}
-Artists and painters often spend a multitude of hours (ranging to weeks sometimes) to colorize black-and-white images to make them look as close to real life in color as possible. This project aims to match a similar skill level to manual labor in the process of image colorization, and do it within a few seconds. The most interesting aspect of this problem is that Deep CNNs are able to generate seemingly indistinguishable colorized images from those of human image editors.
+	\section{Introduction}
+	Artists and painters often spend a multitude of hours (ranging to weeks sometimes) to colorize black-and-white images to make them look as close to real life in color as possible. This project aims to match a similar skill level to manual labor in the process of image colorization, and do it within a few seconds. The most interesting aspect of this problem is that Deep CNNs are able to generate seemingly indistinguishable colorized images from those of human image editors.
 
-This project for CS682 has the end goal of taking a black-and-white image as input, and colorizing it using weights learned from its dataset. A key point to note is that even though the output of the model can be considered as a distribution of weights which can be used to calculate the accuracy of a colorized image with the ground truth, it will always falter from the exact, and it would be a better approach to tune the model's hyperparameters based on the visual appeal of a the colorized image to a human. Thus, this will moreover be a qualitative assessment of the finished colorized image.
+	This project for CS682 has the end goal of taking a black-and-white image as input, and colorizing it using weights learned from its dataset. A key point to note is that even though the output of the model can be considered as a distribution of weights which can be used to calculate the accuracy of a colorized image with the ground truth, it will always falter from the exact, and it would be a better approach to tune the model's hyperparameters based on the visual appeal of a the colorized image to a human. Thus, this will moreover be a qualitative assessment of the finished colorized image.
 
-The approach towards this project is of building a Deep Convolutional Neural Network which also accepts inputs from Inception ResNet v2 in the form of high level feature extraction. The CNN is trained from scratch, and the Inception model is pre-trained on ImageNet. Thus, this overall approach is better than only a CNN, as the work required for identification of features is already done by Inception, and is ready to be used. Google's Inception ResNet v2 model is based on Google's Inception v3 and Microsoft's ResNet.
+	The approach towards this project is of building a Deep Convolutional Neural Network which also accepts inputs from Inception ResNet v2 in the form of high level feature extraction. The CNN is trained from scratch, and the Inception model is pre-trained on ImageNet. Thus, this overall approach is better than only a CNN, as the work required for identification of features is already done by Inception, and is ready to be used. Google's Inception ResNet v2 model is based on Google's Inception v3 and Microsoft's ResNet.
 
-A dataset of $\sim$50,000 image has been manually scraped from Unsplash. However, due to resource constrains, and a noticed trend of the model requiring a much higher number of epochs to give results, I will be using a subset of that. Nevertheless, to alleviate the problem of very less data, I have applied Keras' data augmentation so that each epoch sees a slightly modified image.
+	A dataset of $\sim$50,000 image has been manually scraped from Unsplash. However, due to resource constrains, and a noticed trend of the model requiring a much higher number of epochs to give results, I will be using a subset of that. Nevertheless, to alleviate the problem of very less data, I have applied Keras' data augmentation so that each epoch sees a slightly modified image.
 
-\section{Related Work}
-In 2016, Zhang et. al. \cite{Zhang1} proposed using a deep neural network to train it using the L-channel of the LAB color space \cite{LabColorSpace} of an image as input, and the A-B channels as the output. They used L2 loss as their objective function. However, since they found the problem of colorization to be multimodal in nature, they treated it as a multinomial classification. Thus, they incorporated class rebalancing, which helped with imbalanced and desaturated pixels when the occurrence of some pixel values is rarer than others.
+	\section{Related Work}
+	In 2016, Zhang et. al. \cite{Zhang1} proposed using a deep neural network to train it using the L-channel of the LAB color space \cite{LabColorSpace} of an image as input, and the A-B channels as the output. They used L2 loss as their objective function. However, since they found the problem of colorization to be multimodal in nature, they treated it as a multinomial classification. Thus, they incorporated class rebalancing, which helped with imbalanced and desaturated pixels when the occurrence of some pixel values is rarer than others.
 
-Also in 2016, Iizuka, Simo-serra, et. al. \cite{Iizuka} proposed a similar method, of using a deep convolutional neural network. However, their network architecture also included usage of global-level along with the CNN's mid-level features to encode images for colorization. They logically split their network into encoding, fusion, and decoding layers, along with a pre-trained external model's inputs being concatenated in the fusion layer. Their research shows clearly how the usage of global features improves lower contrast parts of an image to also be colorized to similar to ground truth. They used the MIT Places Scene dataset containing 2.3 million images divided into 205 categories. The network architecture used in my paper is inspired from from this reference. However, a point to note is that though these researchers used a self-trained model for extraction of global features, this project uses Google's Inception ResNet v2 \cite{Inception}.
+	Also in 2016, Iizuka, Simo-serra, et. al. \cite{Iizuka} proposed a similar method, of using a deep convolutional neural network. However, their network architecture also included usage of global-level along with the CNN's mid-level features to encode images for colorization. They logically split their network into encoding, fusion, and decoding layers, along with a pre-trained external model's inputs being concatenated in the fusion layer. Their research shows clearly how the usage of global features improves lower contrast parts of an image to also be colorized to similar to ground truth. They used the MIT Places Scene dataset containing 2.3 million images divided into 205 categories. The network architecture used in my paper is inspired from from this reference. However, a point to note is that though these researchers used a self-trained model for extraction of global features, this project uses Google's Inception ResNet v2 \cite{Inception}.
 
-Another paper reviewed was a follow-up research by Zhang et. al. \cite{Zhang2} released in 2017. This paper built upon their previous research, by allowing user hints to help guide the network to output more relevant color predictions, which could be updated in real-time. They have also released an interactive tool which accepts user inputs, and even makes color suggestions to users once a pixel on an image has been selected. This enables the user to customize image colors vastly and even deviate from network predictions. For example: blue elephants and green human skin tones!
+	Another paper reviewed was a follow-up research by Zhang et. al. \cite{Zhang2} released in 2017. This paper built upon their previous research, by allowing user hints to help guide the network to output more relevant color predictions, which could be updated in real-time. They have also released an interactive tool which accepts user inputs, and even makes color suggestions to users once a pixel on an image has been selected. This enables the user to customize image colors vastly and even deviate from network predictions. For example: blue elephants and green human skin tones!
 
-\section{Approach}
-The Convolutional Neural Network designed and implemented in this paper is independent of the resolution of images used for training, validation and testing. Thus, we can refer to the dimensions of an input image being\\
-(H x W x 3).
+	\section{Approach}
+	The Convolutional Neural Network designed and implemented in this paper is independent of the resolution of images used for training, validation and testing. Thus, we can refer to the dimensions of an input image being\\
+	(H x W x 3).
 
-The starting step is to preprocess input images so as to convert them from the RGB color space to the Lab color space \cite{LabColorSpace}, where \textbf{L} is Lightness (i.e., the grayscale intensity), and \textbf{a} and \textbf{b} are the green-red and blue-yellow color components.
+	The starting step is to preprocess input images so as to convert them from the RGB color space to the Lab color space \cite{LabColorSpace}, where \textbf{L} is Lightness (i.e., the grayscale intensity), and \textbf{a} and \textbf{b} are the green-red and blue-yellow color components.
 
-After images have been converted to the Lab color space, the L-channels and AB-channels are separated. The L-channels are the input data to the model, and the AB-channels are what the model will need to predict. Thus, our objective function becomes a prediction of an AB-channel given an L-channel.
+	After images have been converted to the Lab color space, the L-channels and AB-channels are separated. The L-channels are the input data to the model, and the AB-channels are what the model will need to predict. Thus, our objective function becomes a prediction of an AB-channel given an L-channel.
 
-subsequently, the image is passed to both parts of the network, namely the Deep CNN and Inception ResNet v2 \cite{Inception}. For Inception, all training images are resized to\\(299 x 299 x 3), which is the required input dimension for that model. The outputs of a part of the CNN are concatenated with the feature extractions of Inception. Then, the image arrays are passed through a series of convolutional and upsampling layers, to finally output images of the original H and W dimensions, but with only two channels. These two output channels are the a and b channels. The final output image is reconstructed by merging the input L channel data with these two predicted channels.
+	subsequently, the image is passed to both parts of the network, namely the Deep CNN and Inception ResNet v2 \cite{Inception}. For Inception, all training images are resized to\\(299 x 299 x 3), which is the required input dimension for that model. The outputs of a part of the CNN are concatenated with the feature extractions of Inception. Then, the image arrays are passed through a series of convolutional and upsampling layers, to finally output images of the original H and W dimensions, but with only two channels. These two output channels are the a and b channels. The final output image is reconstructed by merging the input L channel data with these two predicted channels.
 
-\section{Network Architecture}
-The overall  network is composed of a Deep Convolutional Neural Network which will be trained from scratch, and a pre-trained Inception ResNet v2. The overall network is logically partitioned into the Encoding, Fusion, and Decoding layers.
+	\section{Network Architecture}
+	The overall network is composed of a Deep Convolutional Neural Network which will be trained from scratch, and a pre-trained Inception ResNet v2. The overall network is logically partitioned into the Encoding, Fusion, and Decoding layers.
 
-Because the network is fully based on CNNs, it is independent of image dimensions. However, to choose a number, this project considers images of the dimension\\(256 x 256 x 3).
+	Because the network is fully based on CNNs, it is independent of image dimensions. However, to choose a number, this project considers images of the dimension\\(256 x 256 x 3).
 
-\subsection{Encoding Layer}
-This layer accepts an input of the original image dimensions, but with only the L-channel, i.e. (256 x 256 x 1). It then applies a series of 8 convolutional layers with various differing filters, and alternating strides of 1 and 2. A stride of 2 reduces the height and width of the image to half of the input dimensions. An output image array of this layer is of the shape (32 x 32 x 256).
+	\subsection{Encoding Layer}
+	This layer accepts an input of the original image dimensions, but with only the L-channel, i.e. (256 x 256 x 1). It then applies a series of 8 convolutional layers with various differing filters, and alternating strides of 1 and 2. A stride of 2 reduces the height and width of the image to half of the input dimensions. An output image array of this layer is of the shape (32 x 32 x 256).
 
-\subsection{Feature Extraction Layer}
-This layer of the overall model is responsible for resizing an input image, feeding it to a pre-trained Inception ResNet v2 model \cite{Inception}, and extracting features from the prediction of this model. After resizing the image array, its shape becomes (299 x 299 x 3). This is done by simply repeating the L-channel thrice, and by applying a padding of "constant" mode. This preprocessing step of image resizing is necessary because the input needs to conform with Inception ResNet v2's specifications for input dimensions. The predicted output of this layer is a vector of shape (1000).
+	\subsection{Feature Extraction Layer}
+	This layer of the overall model is responsible for resizing an input image, feeding it to a pre-trained Inception ResNet v2 model \cite{Inception}, and extracting features from the prediction of this model. After resizing the image array, its shape becomes (299 x 299 x 3). This is done by simply repeating the L-channel thrice, and by applying a padding of "constant" mode. This preprocessing step of image resizing is necessary because the input needs to conform with Inception ResNet v2's specifications for input dimensions. The predicted output of this layer is a vector of shape (1000).
 
-\subsection{Fusion Layer}
-This layer accepts inputs from the above two layers. It then applies a RepeatVector layer \cite{Keras} to repeat the output of the Feature Extraction layer 1024 times, thus changing the shape to (1024 x 1000). Next, the repeated array is reshaped into three dimensions of a shape (32 x 32 x 1000). After the Inception model's embeddings have been modified to match the Encoding Layer's output height and width, they are then concatenated behind the Encoding Layer's output, so as to give an array of shape (32 x 32 x 1256). Finally, a convolutional layer is applied to the concatenated result so as to compress the depth of the array to give a shape of (32 x 32 x 256). The resultant array is fed to the Decoding Layer.
+	\subsection{Fusion Layer}
+	This layer accepts inputs from the above two layers. It then applies a RepeatVector layer \cite{Keras} to repeat the output of the Feature Extraction layer 1024 times, thus changing the shape to (1024 x 1000). Next, the repeated array is reshaped into three dimensions of a shape (32 x 32 x 1000). After the Inception model's embeddings have been modified to match the Encoding Layer's output height and width, they are then concatenated behind the Encoding Layer's output, so as to give an array of shape (32 x 32 x 1256). Finally, a convolutional layer is applied to the concatenated result so as to compress the depth of the array to give a shape of (32 x 32 x 256). The resultant array is fed to the Decoding Layer.
 
-\subsection{Decoding Layer}
-This layer accepts the output of the Fusion Layer, and passes it through a series of 8 layers (convolutional and upsampling). The convolutional layers are responsible for filtering the depth of the input arrays, and the upsampling layers are responsible for doubling the height and width dimensions of the array. The output of this layer is an array of shape (256 x 256 x 2), which is very close to the shape of the original input array except for the L-channel.
+	\subsection{Decoding Layer}
+	This layer accepts the output of the Fusion Layer, and passes it through a series of 8 layers (convolutional and upsampling). The convolutional layers are responsible for filtering the depth of the input arrays, and the upsampling layers are responsible for doubling the height and width dimensions of the array. The output of this layer is an array of shape (256 x 256 x 2), which is very close to the shape of the original input array except for the L-channel.
 
-The final step in the overall project while colorizing test images is to take the output of the Decoding Layer, and merge it with the original grayscale input of shape (256 x 256 x 1) to result in a colorized image of shape (256 x 256 x 3).
+	The final step in the overall project while colorizing test images is to take the output of the Decoding Layer, and merge it with the original grayscale input of shape (256 x 256 x 1) to result in a colorized image of shape (256 x 256 x 3).
 
-\begin{figure*}
-\includegraphics[width=\textwidth]{Architecture}
-\caption{Network Architecture comprising of a Deep CNN and an Inception ResNet v2 model}
-\centering
-\end{figure*}
+	\begin{figure*}
+		\includegraphics[width=\textwidth]{Architecture}
+		\caption{Network Architecture comprising of a Deep CNN and an Inception ResNet v2 model}
+		\centering
+	\end{figure*}
 
-\section{Dataset}
-The dataset used comprises of $\sim$50,000 images scraped from Unsplash \cite{Unsplash} using a script written in Python 3.6 \cite{Python}. These images belong to categories such as ``Man", ``Woman", ``Food", ``House", ``Business", ``School", ``Nature", ``Travel", ``Couple", and ``Friends". Since these images are covered under the Creative Commons license, they are thus available for public usage.
+	\section{Dataset}
+	The dataset used comprises of $\sim$50,000 images scraped from Unsplash \cite{Unsplash} using a script written in Python 3.6 \cite{Python}. These images belong to categories such as ``Man", ``Woman", ``Food", ``House", ``Business", ``School", ``Nature", ``Travel", ``Couple", and ``Friends". Since these images are covered under the Creative Commons license, they are thus available for public usage.
 
-\subsection{Data Augmentation}
-Using Keras' ImageDataGenerator \cite{Keras}, this project implements data augmentation for every epoch of training. Parameters used for augmenting the image data include randomized rotation (between 0° and 20°), shear (range between 0.0 and 0.2), zoom (between 0.0 and 0.2), and horizontal flipping.
+	\subsection{Data Augmentation}
+	Using Keras' ImageDataGenerator \cite{Keras}, this project implements data augmentation for every epoch of training. Parameters used for augmenting the image data include randomized rotation (between 0° and 20°), shear (range between 0.0 and 0.2), zoom (between 0.0 and 0.2), and horizontal flipping.
 
-\section{Implementation}
-The network architecture of this project has been implemented by using Keras \cite{Keras}, with TensorFlow \cite{TensorFlow} as its backend. All image manipulation is done using the scikit-image \cite{scikit-image} library in Python 3.6 \cite{Python}.
+	\section{Implementation}
+	The network architecture of this project has been implemented by using Keras \cite{Keras}, with TensorFlow \cite{TensorFlow} as its backend. All image manipulation is done using the scikit-image \cite{scikit-image} library in Python 3.6 \cite{Python}.
 
-All other scripts, such as for scraping the dataset from Unsplash, converting to a 3-channel grayscale image, checking for duplicates, have been written in Python 3.6.
+	All other scripts, such as for scraping the dataset from Unsplash, converting to a 3-channel grayscale image, checking for duplicates, have been written in Python 3.6.
 
-Processing of the scraped dataset of $\sim$50,000 images from a higher resolution to this project's requirements, and then converting to grayscale, were performed using batch operations in IrfanView \cite{IrfanView}.
+	Processing of the scraped dataset of $\sim$50,000 images from a higher resolution to this project's requirements, and then converting to grayscale, were performed using batch operations in IrfanView \cite{IrfanView}.
 
-TensorBoard \cite{TensorFlow} was used to visualize the training loss graphs for the various training runs. Keras provides an API to directly log metrics such as training loss to TensorBoard while training.
+	TensorBoard \cite{TensorFlow} was used to visualize the training loss graphs for the various training runs. Keras provides an API to directly log metrics such as training loss to TensorBoard while training.
 
-\section{Experiments}
-Initial experiments were with a lower-sized dataset of $\sim$9,500 training images and $\sim$500 test images. The training for each of these experiments was performed for epochs in the range of 20-30, with a batch size of 32 or 50. As an output, all test images appeared highly sepia-toned / brownish. This phase of experiments did feel like the model was not properly configured for colorizing images, or that the network architecture was wrong. Example output images of the above experiments are in Figure \ref{exp_1}.
+	\section{Experiments}
+	Initial experiments were with a lower-sized dataset of $\sim$9,500 training images and $\sim$500 test images. The training for each of these experiments was performed for epochs in the range of 20-30, with a batch size of 32 or 50. As an output, all test images appeared highly sepia-toned / brownish. This phase of experiments did feel like the model was not properly configured for colorizing images, or that the network architecture was wrong. Example output images of the above experiments are in Figure \ref{exp_1}.
 
-\begin{figure}
-\centering
-\hrule
-\begin{tabular}{|c|c|c|}
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_1_All_Brown/original/59zhma}} &
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_1_All_Brown/grayscale/59zhma}} &
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_1_All_Brown/colorized/59zhma}} \\
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_1_All_Brown/original/60BNaj}} &
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_1_All_Brown/grayscale/60BNaj}} &
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_1_All_Brown/colorized/60BNaj}} \\
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_1_All_Brown/original/60HaBd}} &
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_1_All_Brown/grayscale/60HaBd}} &
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_1_All_Brown/colorized/60HaBd}} \\
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_1_All_Brown/original/60JJdo}} &
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_1_All_Brown/grayscale/60JJdo}} &
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_1_All_Brown/colorized/60JJdo}} \\
-\hline
-\subfloat{Ground Truth} &
-\subfloat{Grayscale} &
-\subfloat{Colorized}
-\end{tabular}
-\hrule
-\caption{Experiment 1: Brownish Images}
-\label{exp_1}
-\end{figure}
+	\begin{figure}
+		\centering
+		\hrule
+		\begin{tabular}{|c|c|c|}
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_1_All_Brown/original/59zhma}} &
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_1_All_Brown/grayscale/59zhma}} &
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_1_All_Brown/colorized/59zhma}} \\
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_1_All_Brown/original/60BNaj}} &
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_1_All_Brown/grayscale/60BNaj}} &
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_1_All_Brown/colorized/60BNaj}} \\
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_1_All_Brown/original/60HaBd}} &
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_1_All_Brown/grayscale/60HaBd}} &
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_1_All_Brown/colorized/60HaBd}} \\
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_1_All_Brown/original/60JJdo}} &
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_1_All_Brown/grayscale/60JJdo}} &
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_1_All_Brown/colorized/60JJdo}} \\
+			\hline
+			\subfloat{Ground Truth} &
+			\subfloat{Grayscale} &
+			\subfloat{Colorized}
+		\end{tabular}
+		\hrule
+		\caption{Experiment 1: Brownish Images}
+		\label{exp_1}
+	\end{figure}
 
-However, after changing the batch size to a higher value of 100 (while keeping epochs at the same value of 30), the output images started showing colorization in the sky and water parts of the images, for many test images which had skies and water bodies in them. The dull blue colorization was an indicator that this network might still work, and would need a lot more experimentation with the various hyperparameters and types of images in the dataset. Example output images of the above experiments are in Figure \ref{exp_2}.
+	However, after changing the batch size to a higher value of 100 (while keeping epochs at the same value of 30), the output images started showing colorization in the sky and water parts of the images, for many test images which had skies and water bodies in them. The dull blue colorization was an indicator that this network might still work, and would need a lot more experimentation with the various hyperparameters and types of images in the dataset. Example output images of the above experiments are in Figure \ref{exp_2}.
 
-\begin{figure}
-\centering
-\hrule
-\begin{tabular}{|c|c|c|}
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_2_Bluish_Hues/original/60bCve}} &
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_2_Bluish_Hues/grayscale/60bCve}} &
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_2_Bluish_Hues/colorized/60bCve}} \\
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_2_Bluish_Hues/original/72jkXW}} &
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_2_Bluish_Hues/grayscale/72jkXW}} &
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_2_Bluish_Hues/colorized/72jkXW}} \\
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_2_Bluish_Hues/original/75gLUi}} &
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_2_Bluish_Hues/grayscale/75gLUi}} &
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_2_Bluish_Hues/colorized/75gLUi}} \\
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_2_Bluish_Hues/original/84cku8}} &
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_2_Bluish_Hues/grayscale/84cku8}} &
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_2_Bluish_Hues/colorized/84cku8}} \\
-\hline
-\subfloat{Ground Truth} &
-\subfloat{Grayscale} &
-\subfloat{Colorized}
-\end{tabular}
-\hrule
-\caption{Experiment 2: Bluish Skies}
-\label{exp_2}
-\end{figure}
+	\begin{figure}
+		\centering
+		\hrule
+		\begin{tabular}{|c|c|c|}
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_2_Bluish_Hues/original/60bCve}} &
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_2_Bluish_Hues/grayscale/60bCve}} &
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_2_Bluish_Hues/colorized/60bCve}} \\
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_2_Bluish_Hues/original/72jkXW}} &
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_2_Bluish_Hues/grayscale/72jkXW}} &
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_2_Bluish_Hues/colorized/72jkXW}} \\
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_2_Bluish_Hues/original/75gLUi}} &
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_2_Bluish_Hues/grayscale/75gLUi}} &
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_2_Bluish_Hues/colorized/75gLUi}} \\
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_2_Bluish_Hues/original/84cku8}} &
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_2_Bluish_Hues/grayscale/84cku8}} &
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_2_Bluish_Hues/colorized/84cku8}} \\
+			\hline
+			\subfloat{Ground Truth} &
+			\subfloat{Grayscale} &
+			\subfloat{Colorized}
+		\end{tabular}
+		\hrule
+		\caption{Experiment 2: Bluish Skies}
+		\label{exp_2}
+	\end{figure}
 
-The next experiment was for the \textit{entire} training set of 50,000 images. The other configurations were 50 epochs and a batch size of 100. This experiment was extremely resource intensive, and required an AWS p2.8xlarge to run, and took $\sim$20 hours to complete training. However, the results in this experiment were close to Experiment 1; i.e. mostly sepia-toned images. After reading more on such similar experiences by other researchers, I realized that this was because of having a wide range of types of images. The hypothesis was that since brown is easily picked up by the Neural Networks, all colors average out to brownish if the input data is vastly varied. Example output images of the above experiments are in Figure \ref{exp_3}.
+	The next experiment was for the \textit{entire} training set of 50,000 images. The other configurations were 50 epochs and a batch size of 100. This experiment was extremely resource intensive, and required an AWS p2.8xlarge to run, and took $\sim$20 hours to complete training. However, the results in this experiment were close to Experiment 1; i.e. mostly sepia-toned images. After reading more on such similar experiences by other researchers, I realized that this was because of having a wide range of types of images. The hypothesis was that since brown is easily picked up by the Neural Networks, all colors average out to brownish if the input data is vastly varied. Example output images of the above experiments are in Figure \ref{exp_3}.
 
-\begin{figure}
-\centering
-\hrule
-\begin{tabular}{|c|c|c|}
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_3_All_Brown_Again/original/62JzQR}} &
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_3_All_Brown_Again/grayscale/62JzQR}} &
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_3_All_Brown_Again/colorized/62JzQR}} \\
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_3_All_Brown_Again/original/63mCym}} &
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_3_All_Brown_Again/grayscale/63mCym}} &
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_3_All_Brown_Again/colorized/63mCym}} \\
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_3_All_Brown_Again/original/67p9zS}} &
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_3_All_Brown_Again/grayscale/67p9zS}} &
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_3_All_Brown_Again/colorized/67p9zS}} \\
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_3_All_Brown_Again/original/72eJJz}} &
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_3_All_Brown_Again/grayscale/72eJJz}} &
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_3_All_Brown_Again/colorized/72eJJz}} \\
-\hline
-\subfloat{Ground Truth} &
-\subfloat{Grayscale} &
-\subfloat{Colorized}
-\end{tabular}
-\hrule
-\caption{Experiment 3: Brownish Images Yet Again}
-\label{exp_3}
-\end{figure}
+	\begin{figure}
+		\centering
+		\hrule
+		\begin{tabular}{|c|c|c|}
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_3_All_Brown_Again/original/62JzQR}} &
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_3_All_Brown_Again/grayscale/62JzQR}} &
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_3_All_Brown_Again/colorized/62JzQR}} \\
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_3_All_Brown_Again/original/63mCym}} &
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_3_All_Brown_Again/grayscale/63mCym}} &
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_3_All_Brown_Again/colorized/63mCym}} \\
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_3_All_Brown_Again/original/67p9zS}} &
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_3_All_Brown_Again/grayscale/67p9zS}} &
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_3_All_Brown_Again/colorized/67p9zS}} \\
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_3_All_Brown_Again/original/72eJJz}} &
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_3_All_Brown_Again/grayscale/72eJJz}} &
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_3_All_Brown_Again/colorized/72eJJz}} \\
+			\hline
+			\subfloat{Ground Truth} &
+			\subfloat{Grayscale} &
+			\subfloat{Colorized}
+		\end{tabular}
+		\hrule
+		\caption{Experiment 3: Brownish Images Yet Again}
+		\label{exp_3}
+	\end{figure}
 
-After realizing that varied images with a low number of epochs (i.e., 30-50) will only yield brownish images, I performed a series of multiple tests spanning across 10 days to get better results. These tests included setting epoch values to very high numbers, such as 1000, 1500, and 2000. However, such high epoch values would mean a \textit{considerable} training time (in the range of weeks, not hours, given the available computation capabilities). Thus, to test out this hypothesis, I trimmed the dataset to $\sim$2000 manually hand-picked portrait images of humans. These experiments showed immense promise in the colorized outputs. However, even training with just 2000 images took $\sim$25 hours. Thus, I was unable to test further with the entire dataset of 50,000 images. Nevertheless, these tests gave fairly better results. Example output images of the above experiments from a test set of $\sim$1000 images, are in Figure \ref{exp_4}.
+	After realizing that varied images with a low number of epochs (i.e., 30-50) will only yield brownish images, I performed a series of multiple tests spanning across 10 days to get better results. These tests included setting epoch values to very high numbers, such as 1000, 1500, and 2000. However, such high epoch values would mean a \textit{considerable} training time (in the range of weeks, not hours, given the available computation capabilities). Thus, to test out this hypothesis, I trimmed the dataset to $\sim$2000 manually hand-picked portrait images of humans. These experiments showed immense promise in the colorized outputs. However, even training with just 2000 images took $\sim$25 hours. Thus, I was unable to test further with the entire dataset of 50,000 images. Nevertheless, these tests gave fairly better results. Example output images of the above experiments from a test set of $\sim$1000 images, are in Figure \ref{exp_4}.
 
-\begin{figure}
-\centering
-\hrule
-\begin{tabular}{|c|c|c|}
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/original/AsarQv}} &
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/grayscale/AsarQv}} &
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/colorized/AsarQv}} \\
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/original/Bdvoad}} &
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/grayscale/Bdvoad}} &
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/colorized/Bdvoad}} \\
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/original/80652197}} &
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/grayscale/80652197}} &
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/colorized/80652197}} \\
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/original/photo-1444318226545-dfd6106d7ec4}} &
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/grayscale/photo-1444318226545-dfd6106d7ec4}} &
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/colorized/photo-1444318226545-dfd6106d7ec4}} \\
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/original/Bidgn4}} &
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/grayscale/Bidgn4}} &
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/colorized/Bidgn4}} \\
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/original/a1IArT}} &
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/grayscale/a1IArT}} &
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/colorized/a1IArT}} \\
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/original/amYi8w}} &
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/grayscale/amYi8w}} &
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/colorized/amYi8w}} \\
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/original/photo-1512418498-cb788ccb7014}} &
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/grayscale/photo-1512418498-cb788ccb7014}} &
-\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/colorized/photo-1512418498-cb788ccb7014}} \\
-\hline
-\subfloat{Ground Truth} &
-\subfloat{Grayscale} &
-\subfloat{Colorized}
-\end{tabular}
-\hrule
-\caption{Experiment 4: Training for High Epochs}
-\label{exp_4}
-\end{figure}
+	\begin{figure}
+		\centering
+		\hrule
+		\begin{tabular}{|c|c|c|}
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/original/AsarQv}} &
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/grayscale/AsarQv}} &
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/colorized/AsarQv}} \\
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/original/Bdvoad}} &
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/grayscale/Bdvoad}} &
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/colorized/Bdvoad}} \\
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/original/80652197}} &
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/grayscale/80652197}} &
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/colorized/80652197}} \\
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/original/photo-1444318226545-dfd6106d7ec4}} &
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/grayscale/photo-1444318226545-dfd6106d7ec4}} &
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/colorized/photo-1444318226545-dfd6106d7ec4}} \\
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/original/Bidgn4}} &
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/grayscale/Bidgn4}} &
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/colorized/Bidgn4}} \\
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/original/a1IArT}} &
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/grayscale/a1IArT}} &
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/colorized/a1IArT}} \\
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/original/amYi8w}} &
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/grayscale/amYi8w}} &
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/colorized/amYi8w}} \\
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/original/photo-1512418498-cb788ccb7014}} &
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/grayscale/photo-1512418498-cb788ccb7014}} &
+			\subfloat{\includegraphics[width = 0.28\linewidth]{Exp_4_High_Epochs/colorized/photo-1512418498-cb788ccb7014}} \\
+			\hline
+			\subfloat{Ground Truth} &
+			\subfloat{Grayscale} &
+			\subfloat{Colorized}
+		\end{tabular}
+		\hrule
+		\caption{Experiment 4: Training for High Epochs}
+		\label{exp_4}
+	\end{figure}
 
-\section{Conclusions}
-TODO
-What have you learned? Suggest future ideas.
+	\section{Conclusions}
+	TODO
+	What have you learned? Suggest future ideas.
 
-\begin{thebibliography}{1}
-\bibitem{Zhang1} Zhang 1
-\bibitem{Iizuka} Iizuka
-\bibitem{Zhang2} Zhang 2
-\bibitem{Koalarization} Deep Koalarization
-\bibitem{Inception} https://arxiv.org/abs/1602.07261
-\bibitem{Unsplash} Unsplash
-\bibitem{TinyClouds} TinyClouds
-\bibitem{Keras} Keras
-\bibitem{TensorFlow} TensorFlow
-\bibitem{TensorBoard} TensorBoard
-\bibitem{scikit-image} scikit-image
-\bibitem{IrfanView} IrfanView
-\bibitem{Python} Python
-\bibitem{AlexNet} AlexNet
-\bibitem{LabColorSpace} LabColorSpace
-\end{thebibliography}
+	\begin{thebibliography}{1}
+		\bibitem{Zhang1} Zhang 1
+		\bibitem{Iizuka} Iizuka
+		\bibitem{Zhang2} Zhang 2
+		\bibitem{Koalarization} Deep Koalarization
+		\bibitem{Inception} https://arxiv.org/abs/1602.07261
+		\bibitem{Unsplash} Unsplash
+		\bibitem{TinyClouds} TinyClouds
+		\bibitem{Keras} Keras
+		\bibitem{TensorFlow} TensorFlow
+		\bibitem{TensorBoard} TensorBoard
+		\bibitem{scikit-image} scikit-image
+		\bibitem{IrfanView} IrfanView
+		\bibitem{Python} Python
+		\bibitem{AlexNet} AlexNet
+		\bibitem{LabColorSpace} LabColorSpace
+	\end{thebibliography}
 
-\section{OLDER STUFF BELOW!}
+	\section{OLDER STUFF BELOW!}
 
-\section{Expected Results}
-The results expected from this project are very promising to me, especially because of the available research papers and their implementations on different tools like Caffe and Torch. Using their ideas, and combining what worked best for each implementation, I believe the output of this model will be quite realistic.
+	\section{Expected Results}
+	The results expected from this project are very promising to me, especially because of the available research papers and their implementations on different tools like Caffe and Torch. Using their ideas, and combining what worked best for each implementation, I believe the output of this model will be quite realistic.
 
-\section{Technical Approach}
-For the CNN to interpret the pixels, the color space of each image is first changed from an RGB to an LAB (Lightness, A [Green-Red] , B [Blue-Yellow]) color space. This helps in the fact that most of the information of the input grayscale image can be used in the form of lightness. Thus, the only major part left to be predicted later on by the model is the A and B of the color space.
+	\section{Technical Approach}
+	For the CNN to interpret the pixels, the color space of each image is first changed from an RGB to an LAB (Lightness, A [Green-Red] , B [Blue-Yellow]) color space. This helps in the fact that most of the information of the input grayscale image can be used in the form of lightness. Thus, the only major part left to be predicted later on by the model is the A and B of the color space.
 
-Next, we need to convert the grayscale image into two filters of A (Green-Red) and B (Blue-Yellow). This is done with the help of Convolutional filters. The model first starts off by layering a huge amount of filters, and then reduces the filters into the A and B layers.
+	Next, we need to convert the grayscale image into two filters of A (Green-Red) and B (Blue-Yellow). This is done with the help of Convolutional filters. The model first starts off by layering a huge amount of filters, and then reduces the filters into the A and B layers.
 
-After the two A and B images are constructed, we pass them through the CNN which is constructed using Keras with TensorFlow as the backend. The CNN has ReLU (Rectified Linear Unit) non-linearity as the activation function, and a tanh layer for activation function for mapping the predicted LAB color space pixel values from [-128, 128] to a [-1, 1] interval. The tanh activation function helps to calculate the error using the prediction. The calculated error is then used to adjust the weights of the filters so as to minimize the total error.
+	After the two A and B images are constructed, we pass them through the CNN which is constructed using Keras with TensorFlow as the backend. The CNN has ReLU (Rectified Linear Unit) non-linearity as the activation function, and a tanh layer for activation function for mapping the predicted LAB color space pixel values from [-128, 128] to a [-1, 1] interval. The tanh activation function helps to calculate the error using the prediction. The calculated error is then used to adjust the weights of the filters so as to minimize the total error.
 
-Google's Inception ResNet V2 will be used as the starting point to train the model, as it gives better results to train a pre-trained model by utilizing Transfer Learning. The model in itself is a Deep Residual Network trained with the capability to classify both CIFAR-10 and ImageNet's dataset of 1000 classes.
+	Google's Inception ResNet V2 will be used as the starting point to train the model, as it gives better results to train a pre-trained model by utilizing Transfer Learning. The model in itself is a Deep Residual Network trained with the capability to classify both CIFAR-10 and ImageNet's dataset of 1000 classes.
 
-Batch normalization layers will be added after each fully-connected layer, but before the non-linearity layers. This will help to improve the training rate of the model.
+	Batch normalization layers will be added after each fully-connected layer, but before the non-linearity layers. This will help to improve the training rate of the model.
 
-In order to prevent severe reduction in image quality, reduce image distortion, and maintain information density, the conv layers will use a stride of 2 (i.e., reducing the dimensions of the image by half). This will help in maintaining information density, while at the same time reduce image distortion. Furthermore, to ensure that each conv layer \textit{does not} cut the edges of images, we will need to add a padding. This can be achieved by using the parameter of \verb|padding=same| in Keras.
+	In order to prevent severe reduction in image quality, reduce image distortion, and maintain information density, the conv layers will use a stride of 2 (i.e., reducing the dimensions of the image by half). This will help in maintaining information density, while at the same time reduce image distortion. Furthermore, to ensure that each conv layer \textit{does not} cut the edges of images, we will need to add a padding. This can be achieved by using the parameter of \verb|padding=same| in Keras.
 
 \end{document}
